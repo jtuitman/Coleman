@@ -118,8 +118,6 @@ Qp_points:=function(data:points:=[]);
 
   for i:=1 to #Fppts do
 
-    print "i", i; //
-
     Fppoint:=Fppts[i];
     j:=1;
     done:=false;
@@ -248,10 +246,6 @@ Qp_points:=function(data:points:=[]);
 
           x:=Qp!Fppoint[1];
 
-          if i eq 5 then //
-             print x; //
-          end if; //
-
           if Valuation(Evaluate(r,x)) eq 0 then // good point
             W0invx:=Transpose(Evaluate(W0^(-1),x));
             ypowersmodp:=Vector(Fppoint[2])*ChangeRing(W0invx,FiniteField(p));
@@ -278,18 +272,10 @@ Qp_points:=function(data:points:=[]);
             for j:=1 to d do
               bj:=b0fun[j];
 
-              if i eq 5 then //
-                print "j", "bj", bj; //
-              end if; //
-
               if not assigned data`minpolys or data`minpolys[1][1,j+1] eq 0 then
                 data:=update_minpolys(data,Fppoint[3],Fppoint[4]);
               end if;
               poly:=data`minpolys[1][1,j+1];
-              
-              if i eq 5 then //
-                print "poly", poly; //
-              end if; //
 
               C:=Coefficients(poly);
               D:=[];
@@ -297,21 +283,12 @@ Qp_points:=function(data:points:=[]);
                 D[k]:=Evaluate(C[k],x); 
               end for;
               fy:=Qpy!Zpy!D;
-              if i eq 5 then //
-                print "fy",fy; //
-              end if;
               fac:=Factorisation(fy); // Roots has some problems that Factorisation does not
-              if i eq 5 then //
-                print "fac", fac; //
-              end if; //
               zeros:=[];
               for j:=1 to #fac do
                 if Degree(fac[j][1]) eq 1 then
                   zeros:=Append(zeros,-Coefficient(fac[j][1],0)/Coefficient(fac[j][1],1));
-                end if; 
-                if i eq 5 then //
-                  print "j",j,"zeros",zeros; //
-                end if; //
+                end if;
               end for;
 
               done:=false;
@@ -323,9 +300,6 @@ Qp_points:=function(data:points:=[]);
                 end if;
                 k:=k+1;
               end while;
-              if i eq 5 then //
-                print "j", j, "b[j]", b[j]; //
-              end if; //
             end for;
           end if;
 
@@ -344,7 +318,6 @@ Qp_points:=function(data:points:=[]);
             D[k]:=Evaluate(C[k],bindex); 
           end for;
           fy:=Qpy!Zpy!D;
-        
           fac:=Factorisation(fy); // Roots has some problems that Factorisation does not
           zeros:=[];
           for j:=1 to #fac do
@@ -402,19 +375,13 @@ Qp_points:=function(data:points:=[]);
         
       end if;
 
-      print "x,b,inf",x,b,inf; //
-
       P:=set_bad_point(x,b,inf,data);
-
-      print "P", P; //
 
     end if;
 
-    //if is_bad(P,data) and not is_very_bad(P,data) then
-    //  print "alarm"; //
-    //  P:=find_bad_point_in_disk(P,data);
-    //  print "new P", P; //
-    //end if;
+    if is_bad(P,data) and not is_very_bad(P,data) then
+      P:=find_bad_point_in_disk(P,data);
+    end if;
     
     Qppts:=Append(Qppts,P);
   

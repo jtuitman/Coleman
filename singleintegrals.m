@@ -1,11 +1,9 @@
-max_prec:=function(Q,p,N,g,W0,Winf,e0,einf:v:=0);
+max_prec:=function(Q,p,N,g,W0,Winf,e0,einf);
 
   // Compute the p-adic precision required for provable correctness
 
   d:=Degree(Q);
   W:=Winf*W0^(-1);
-
-  N:=N-v;
   
   Nmax:=N+Floor(log(p,-p*(ord_0_mat(W)+1)*einf));
   while (Nmax-Floor(log(p,p*(Nmax-1)*e0))-Floor(log(p,-(ord_inf_mat(W^(-1))+1)*einf)) lt N) do 
@@ -85,9 +83,7 @@ coleman_data:=function(Q,p,N:useU:=false,basis0:=[],basis1:=[],basis2:=[])
 
   basis,integrals,quo_map:=basis_coho(Q,p,r,W0,Winf,G0,Ginf,J0,Jinf,T0inv,Tinfinv,useU,basis0,basis1,basis2);
 
-  v:=Minimum([0] cat [Valuation(x,p) : x in Eltseq(quo_map)]);
-
-  Nmax:=max_prec(Q,p,N,g,W0,Winf,e0,einf:v:=v);
+  Nmax:=max_prec(Q,p,N,g,W0,Winf,e0,einf);
 
   frobmatb0r:=froblift(Q,p,Nmax-1,r,Delta,s,W0);
 
@@ -1242,8 +1238,6 @@ find_bad_point_in_disk:=function(P,data);
     x0:=HenselLift(rQp,x0);
   end if;
 
-  print "x0", x0, "r(x0)", Evaluate(r,x0); //
-
   Qt:=RationalFunctionField(RationalField()); Qty:=PolynomialRing(Qt);
 
   f:=Qty!0;
@@ -1255,8 +1249,6 @@ find_bad_point_in_disk:=function(P,data);
   FF:=FunctionField(f); // function field of curve
 
   eP,index:=local_data(P,data);
-
-  print "eP,index",eP,index; //
 
   if P`inf then
     W:=Winf;
@@ -1277,7 +1269,6 @@ find_bad_point_in_disk:=function(P,data);
     if P`inf then
       xfun:=FF!(1/Qt.1);
     else
-      print "check"; //
       xfun:=FF!(Qt.1);
     end if;
 
@@ -1290,7 +1281,6 @@ find_bad_point_in_disk:=function(P,data);
       end for;
       fy:=Ky!D;
       fac:=Factorisation(fy);
-      print "fy,fac",fy,fac; //
       done:=false;
       j:=1;
       while not done and j le #fac do
