@@ -65,6 +65,10 @@ coleman_data:=function(Q,p,N:useU:=false,basis0:=[],basis1:=[],basis2:=[],verbos
     error "Curve is not irreducible";
   end if;
 
+  if not LeadingCoefficient(Q) eq 1 then
+    error "Equation is not monic in y";
+  end if;
+
   ResetMaximumMemoryUsage();
   t0:=Cputime();
 
