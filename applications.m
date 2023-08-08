@@ -736,12 +736,14 @@ zeros_on_disk:=function(P1,P2,v,data:prec:=0,e:=1,integral:=[**]);
 end function;
 
 
-effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1);
+effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1,ann:=[], rank:=[]);
 
   // Carries out effective Chabauty for the curve given by data.
   // First does a point search up to height bound. Then uses the
-  // points found to determine the vanishing differentials. Finally
-  // goes over all residue disks mapping to points on the reduction
+  // points found to determine the vanishing differentials.
+  // NOTE: this does not provably determine the full space of vanishing
+  // differentials, for which knowing the rank of the Jacobian is needed.
+  // Then goes over all residue disks mapping to points on the reduction
   // mod p and finds all common zeros of the vanishing differentials.
 
   if #Qpoints eq 0 then
@@ -749,7 +751,7 @@ effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1);
       error "have to specify either Qpoints or a bound for search";
     end if;
     Qpoints:=Q_points(data,bound);
-  end if; 
+  end if;
    
   for i:=1 to #Qpoints do
     _,index:=local_data(Qpoints[i],data);
@@ -759,20 +761,28 @@ effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1);
         xt,bt,index:=local_coord(Qpoints[i],tadicprec(data,e),data);
         Qpoints[i]`xt:=xt;
         Qpoints[i]`bt:=bt;
-        Qpoints[i]`index:=index; 
+        Qpoints[i]`index:=index;
       end if;
     else
       xt,bt,index:=local_coord(Qpoints[i],tadicprec(data,1),data);
       Qpoints[i]`xt:=xt;
       Qpoints[i]`bt:=bt;
-      Qpoints[i]`index:=index; 
+      Qpoints[i]`index:=index;
     end if;
   end for;
 
-  v,IP1Pi,NIP1Pi:=vanishing_differentials(Qpoints,data:e:=e);
+  if rank eq 0 then
+      v := Rows(ScalarMatrix(pAdicField(data`p, data`N), data`g, 1)); //instantiate the identity matrix
+      IP1Pi:=[];
+      NIP1Pi:=[]; //need to change this
+  else
+      v,IP1Pi,NIP1Pi:=vanishing_differentials(Qpoints,data:e:=e);
+  end if;
+
 
   Qppoints,data:=Qp_points(data:points:=Qpoints);
   for i:=1 to #Qppoints do
+      //print Qppoints[i];
     if is_bad(Qppoints[i],data) then
       xt,bt,index:=local_coord(Qppoints[i],tadicprec(data,e),data);
     else
@@ -804,6 +814,7 @@ effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1);
   return pointlist, v;
 
 end function;
+
 
 
 torsion_packet:=function(P,data:bound:=0,e:=1);
