@@ -1887,7 +1887,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     S1:=find_bad_point_in_disk(P1,data);
     eS1,index:=local_data(S1,data);
     if e le eS1*p then
-      error "e is too small: try greater than ", eS1*N;
+      error "e is too small: try greater than ", eS1*p;
     end if;
     data:=update_minpolys(data,S1`inf,index);
     xt,bt,index:=local_coord(S1,tadicprec(data,e),data);
@@ -1905,7 +1905,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     S2:=find_bad_point_in_disk(P2,data);
     eS2,index:=local_data(S2,data);
     if e le eS2*p then
-      error "e is too small: try greater than ", eS2*N;
+      error "e is too small: try greater than ", eS2*p;
     end if;
     data:=update_minpolys(data,S2`inf,index);
     xt,bt,index:=local_coord(S2,tadicprec(data,e),data);
@@ -1928,7 +1928,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   if is_bad(P1,data) then
     if e le eP1*p then
-      error "e is too small: try greater than ", eP1*N;
+      error "e is too small: try greater than ", eP1*p;
     end if;
     xt,bt,index:=local_coord(P1,tadicprec(data,e),data);
     P1`xt:=xt;       
@@ -1952,7 +1952,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   if is_bad(P2,data) then
     if e le eP2*p then
-      error "e is too small: try greater than ", eP2*N;
+      error "e is too small: try greater than ", eP2*p;
     end if;
     xt,bt,index:=local_coord(P2,tadicprec(data,e),data);
     P2`xt:=xt;       
