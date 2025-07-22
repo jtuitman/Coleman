@@ -1927,7 +1927,6 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   data:=update_minpolys(data,P2`inf,index);
 
   if is_bad(P1,data) then
-    print ("Make sure ramification degree e is sufficiently large (see Remark 4.4 of paper")
     xt,bt,index:=local_coord(P1,tadicprec(data,e),data);
     P1`xt:=xt;       
     P1`bt:=bt;       
