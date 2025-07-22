@@ -569,7 +569,7 @@ frobenius_pt:=function(P,data);
       done:=false;
       j:=1;
       while not done and j le #zeros do
-        if Valuation(zeros[j]-b[i]^p) gt p then
+        if Valuation(zeros[j]-b[i]^p) gt Min(N,p) then //was previously p
           done:=true;
           b[i]:=zeros[j];
         end if;
@@ -1877,7 +1877,6 @@ end function;
 
 coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
-  // Integrals of basis elements from P1 to P2. 
 
   F:=data`F; Q:=data`Q; basis:=data`basis; x1:=P1`x; f0list:=data`f0list; finflist:=data`finflist; fendlist:=data`fendlist; p:=data`p; N:=data`N; delta:=data`delta;
   d:=Degree(Q); K:=Parent(x1); 
@@ -1886,7 +1885,10 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   if is_bad(P1,data) and not is_very_bad(P1,data) then
     S1:=find_bad_point_in_disk(P1,data);
-    _,index:=local_data(S1,data);
+    eS1,index:=local_data(S1,data);
+    if e le eS1*p then
+      error "e is too small (see Remark 4.4 of [BT]): must be at least ", eS1*p;
+    end if;
     data:=update_minpolys(data,S1`inf,index);
     xt,bt,index:=local_coord(S1,tadicprec(data,e),data);
     S1`xt:=xt;
@@ -1901,7 +1903,10 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   if is_bad(P2,data) and not is_very_bad(P2,data) then
     S2:=find_bad_point_in_disk(P2,data);
-    _,index:=local_data(S2,data);
+    eS2,index:=local_data(S2,data);
+    if e le eS2*p then
+      error "e is too small (see Remark 4.4 of [BT]): must be at least ", eS2*p;
+    end if;
     data:=update_minpolys(data,S2`inf,index);
     xt,bt,index:=local_coord(S2,tadicprec(data,e),data);
     S2`xt:=xt;
@@ -1922,6 +1927,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   data:=update_minpolys(data,P2`inf,index);
 
   if is_bad(P1,data) then
+    print ("Make sure ramification degree e is sufficiently large (see Remark 4.4 of paper")
     xt,bt,index:=local_coord(P1,tadicprec(data,e),data);
     P1`xt:=xt;       
     P1`bt:=bt;       
