@@ -1887,7 +1887,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     S1:=find_bad_point_in_disk(P1,data);
     eS1,index:=local_data(S1,data);
     if e le eS1*p then
-      error "e is too small (see Remark 4.4 of [BT]): must be at least ", eS1*p;
+      error "e is too small (see Remark 4.4 of [BT]): must be greater than ", eS1*p;
     end if;
     data:=update_minpolys(data,S1`inf,index);
     xt,bt,index:=local_coord(S1,tadicprec(data,e),data);
@@ -1905,7 +1905,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     S2:=find_bad_point_in_disk(P2,data);
     eS2,index:=local_data(S2,data);
     if e le eS2*p then
-      error "e is too small (see Remark 4.4 of [BT]): must be at least ", eS2*p;
+      error "e is too small (see Remark 4.4 of [BT]): must be greater than ", eS2*p;
     end if;
     data:=update_minpolys(data,S2`inf,index);
     xt,bt,index:=local_coord(S2,tadicprec(data,e),data);
@@ -1921,12 +1921,15 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   // If P1,P2 is bad (hence very bad), use a near boundary point.
 
-  _,index:=local_data(P1,data);
+  eP1,index:=local_data(P1,data);
   data:=update_minpolys(data,P1`inf,index);
-  _,index:=local_data(P2,data);
+  eP2,index:=local_data(P2,data);
   data:=update_minpolys(data,P2`inf,index);
 
   if is_bad(P1,data) then
+    if e le eP1*p then
+      error "e is too small (see Remark 4.4 of [BT]): must be greater than ", eP1*p;
+    end if;
     xt,bt,index:=local_coord(P1,tadicprec(data,e),data);
     P1`xt:=xt;       
     P1`bt:=bt;       
@@ -1948,6 +1951,9 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   end if;
 
   if is_bad(P2,data) then
+    if e le eP2*p then
+      error "e is too small (see Remark 4.4 of [BT]): must be greater than ", eP2*p;
+    end if;
     xt,bt,index:=local_coord(P2,tadicprec(data,e),data);
     P2`xt:=xt;       
     P2`bt:=bt;       
