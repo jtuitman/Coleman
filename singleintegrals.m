@@ -1,3 +1,9 @@
+function is_hyperelliptic(data)
+  Q := data`Q;
+  return Degree(Q) eq 2 and IsMonic(Q) and Coefficient(Q, 1) eq 0;
+end function;
+
+
 max_prec:=function(Q,p,N,g,W0,Winf,e0,einf);
 
   // Compute the p-adic precision required for provable correctness
@@ -569,7 +575,7 @@ frobenius_pt:=function(P,data);
       done:=false;
       j:=1;
       while not done and j le #zeros do
-        if Valuation(zeros[j]-b[i]^p) gt Min(N,p) then //was previously p
+        if Valuation(zeros[j]-b[i]^p) gt Min(N,p) then // was previously p
           done:=true;
           b[i]:=zeros[j];
         end if;
@@ -1881,6 +1887,22 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   F:=data`F; Q:=data`Q; basis:=data`basis; x1:=P1`x; f0list:=data`f0list; finflist:=data`finflist; fendlist:=data`fendlist; p:=data`p; N:=data`N; delta:=data`delta;
   d:=Degree(Q); K:=Parent(x1); 
 
+  //if P1 is the point at infinity, then integral should be computed as 1/2*\int_{-P2}^P2
+  if P1`inf eq true and is_very_bad(P1, data) and is_hyperelliptic(data) then
+    P2coords := xy_coordinates(P2, data);
+    negP2 := set_point(P2coords[1], -P2coords[2], data);
+    //return 1/2*coleman_integrals_on_basis(negP2,P2,data:e:=e);
+    return 1/2*$$(negP2,P2,data:e:=e);
+  end if;
+
+
+  //if P2 is the point at infinity, then integral should be computed as -1/2*\int_{-P1}^P1
+  if P2`inf eq true and is_very_bad(P2, data) and is_hyperelliptic(data) then
+    P1coords := xy_coordinates(P1,data);
+    negP1 := set_point(P1coords[1], -P1coords[2], data);
+    return -1/2*$$(negP1,P1,data:e:=e);
+  end if;
+
   // First make sure that if P1 or P2 is bad, then it is very bad
 
   if is_bad(P1,data) and not is_very_bad(P1,data) then
@@ -2029,6 +2051,10 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   IP1P2:=IS1S2+ChangeRing(tinyP1toS1,K)-ChangeRing(tinyP2toS2,K);
   IP1P2,Nround:=round_to_Qp(IP1P2);
 
+
+  //print "IP1P2 ", IP1P2;
+  //print "NIP1P2 ", NIP1P2;
+  //print "Nround ", Nround;
   assert Nround ge NIP1P2;                          // Check that rounding error is within error bound.                          
 
   NIP1P2:=Ceiling(NIP1P2);
