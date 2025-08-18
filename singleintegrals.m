@@ -1286,6 +1286,8 @@ tiny_integral_prec:=function(prec,e,maxpoleorder,maxdegree,mindegree,val,data : 
   end if;
 
   m:=Minimum([m1,m2,m3]);
+  print "minimum: ", m;
+  print "e: ", e;
 
   return m/e;
 
@@ -1888,25 +1890,30 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   d:=Degree(Q); K:=Parent(x1); 
 
   //if P1 is the point at infinity, then integral should be computed as 1/2*\int_{-P2}^P2
+  //this needs more cases
   if P1`inf eq true and is_very_bad(P1, data) and is_hyperelliptic(data) then
     P2coords := xy_coordinates(P2, data);
     negP2 := set_point(P2coords[1], -P2coords[2], data);
     //return 1/2*coleman_integrals_on_basis(negP2,P2,data:e:=e);
-    return 1/2*$$(negP2,P2,data:e:=e);
+    InegP2P2, NInegP2P2 := $$(negP2,P2,data:e:=e);
+    return 1/2*InegP2P2, NInegP2P2;
   end if;
 
 
   //if P2 is the point at infinity, then integral should be computed as -1/2*\int_{-P1}^P1
+  //this needs more cases
   if P2`inf eq true and is_very_bad(P2, data) and is_hyperelliptic(data) then
     P1coords := xy_coordinates(P1,data);
     negP1 := set_point(P1coords[1], -P1coords[2], data);
-    return -1/2*$$(negP1,P1,data:e:=e);
+    InegP1P1, NInegP1P1 := $$(negP1,P1,data:e:=e);
+    return -1/2*InegP1P1, NInegP1P1;
   end if;
 
   // First make sure that if P1 or P2 is bad, then it is very bad
 
   if is_bad(P1,data) and not is_very_bad(P1,data) then
     S1:=find_bad_point_in_disk(P1,data);
+    print "found S1";
     eS1,index:=local_data(S1,data);
     if e le eS1*p then
       error "e is too small: try greater than ", eS1*p;
@@ -1925,6 +1932,7 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
 
   if is_bad(P2,data) and not is_very_bad(P2,data) then
     S2:=find_bad_point_in_disk(P2,data);
+    print "found S2";
     eS2,index:=local_data(S2,data);
     if e le eS2*p then
       error "e is too small: try greater than ", eS2*p;
@@ -1952,7 +1960,10 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     if e le eP1*p then
       error "e is too small: try greater than ", eP1*p;
     end if;
-    xt,bt,index:=local_coord(P1,tadicprec(data,e),data);
+    print "tadic prec P1: ", tadicprec(data,1);
+    print "maximum: ", Maximum(tadicprec(data,1),N*e);
+    //xt,bt,index:=local_coord(P1,tadicprec(data,1),data);
+    xt,bt,index:=local_coord(P1,Maximum(tadicprec(data,1),N*e),data);
     P1`xt:=xt;       
     P1`bt:=bt;       
     P1`index:=index; 
@@ -1976,15 +1987,18 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     if e le eP2*p then
       error "e is too small: try greater than ", eP2*p;
     end if;
-    xt,bt,index:=local_coord(P2,tadicprec(data,e),data);
+    print "tadic prec P2: ", tadicprec(data,1);
+    //xt,bt,index:=local_coord(P2,tadicprec(data,1),data);
+    print "maximum: ", Maximum(tadicprec(data,1),N*e);
+    xt,bt,index:=local_coord(P2,Maximum(tadicprec(data,1),N*e),data);
     P2`xt:=xt;       
     P2`bt:=bt;       
     P2`index:=index; 
-    if not is_bad(P1,data) then
+    //if not is_bad(P1,data) then
       Qp:=Parent(P2`x);
       Qpa<a>:=PolynomialRing(Qp);
       K<a>:=TotallyRamifiedExtension(Qp,a^e-p);
-    end if;
+    //end if;
     format:=recformat<x,b,inf,xt,bt,index>;
     S2:=rec<format|>;                                                    
     S2`inf:=P2`inf;
@@ -1997,32 +2011,49 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
     P2`index:=index; 
     S2:=P2;
   end if;
+  print "S2 = ", S2;
 
   // Split up the integral and compute the tiny ones.
 
   tinyP1toS1,NP1toS1:=tiny_integrals_on_basis(P1,S1,data);
   tinyP2toS2,NP2toS2:=tiny_integrals_on_basis(P2,S2,data);
+  print "NP1toS1: ", NP1toS1;
+  print "NP2toS2: ", NP2toS2;
 
+
+  //print "computed tinyP1toS1", tinyP1toS1;
+  //print "computed tinyP2toS2", tinyP2toS2;
   FS1:=frobenius_pt(S1,data);
   FS2:=frobenius_pt(S2,data);
   //JSB edit 03/31/21
   if is_bad(S1,data) and not is_very_bad(S1,data) then
+    //"computing via first way here in disk of S1";
     tinyP1toFS1,NP1toFS1:=tiny_integrals_on_basis(P1,FS1,data);
     tinyS1toFS1 := tinyP1toFS1 - tinyP1toS1;
     NS1toFS1:=Minimum([NP1toFS1,NP1toS1]);
   else 
     tinyS1toFS1,NS1toFS1:=tiny_integrals_on_basis(S1,FS1,data:P:=P1); 
   end if;
+
+  //print "tinyS1toFS1: ", tinyS1toFS1;
   //JSB edit 04/17/21
   if is_bad(S2,data) and not is_very_bad(S2,data) then
+    //"computing via first way here in disk of S2";
     tinyP2toFS2,NP2toFS2:=tiny_integrals_on_basis(P2,FS2,data);
     tinyS2toFS2 := tinyP2toFS2 - tinyP2toS2;
     NS2toFS2:=Minimum([NP2toFS2,NP2toS2]);
   else
+    "since S2 is not bad, computing here via tiny integrals on basis and subtracting";
       tinyS2toFS2,NS2toFS2:=tiny_integrals_on_basis(S2,FS2,data:P:=P2); 
   end if;
+  print "tinyP1toS1", tinyP1toS1;
+  print "tinyP2toS2", tinyP2toS2;
+  print "tinyS1toFS1", tinyS1toFS1;
+  print "tinyS2toFS2", tinyS2toFS2;
+  print [NP1toS1,NP2toS2,NS1toFS1,NS2toFS2];
   NIP1P2:=Minimum([NP1toS1,NP2toS2,NS1toFS1,NS2toFS2]);  
 
+  // print "tinyS2toFS2: ", tinyS2toFS2;
   // Evaluate all functions.
 
   I:=[];
@@ -2049,13 +2080,17 @@ coleman_integrals_on_basis:=function(P1,P2,data:e:=1)
   
   IS1S2:=Vector(I)*Transpose(ChangeRing(mat,K));    // Solve the linear system.
   IP1P2:=IS1S2+ChangeRing(tinyP1toS1,K)-ChangeRing(tinyP2toS2,K);
+  print "IP1P2", IP1P2;
   IP1P2,Nround:=round_to_Qp(IP1P2);
 
 
-  //print "IP1P2 ", IP1P2;
+  print "IP1P2 ", IP1P2;
   //print "NIP1P2 ", NIP1P2;
   //print "Nround ", Nround;
-  assert Nround ge NIP1P2;                          // Check that rounding error is within error bound.                          
+  //assert Nround ge NIP1P2;                          // Check that rounding error is within error bound.                          
+  if Nround lt NIP1P2 then
+    error "e is too small";
+  end if;
 
   NIP1P2:=Ceiling(NIP1P2);
 

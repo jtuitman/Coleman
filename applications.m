@@ -771,7 +771,7 @@ effective_chabauty:=function(data:Qpoints:=[],bound:=0,e:=1,ann:=[], rank:=[]);
     end if;
   end for;
 
-  if rank eq 0 then
+  if rank cmpeq 0 then
       v := Rows(ScalarMatrix(pAdicField(data`p, data`N), data`g, 1)); //instantiate the identity matrix
       IP1Pi:=[];
       NIP1Pi:=[]; //need to change this
